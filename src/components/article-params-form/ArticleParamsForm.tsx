@@ -23,21 +23,21 @@ import {
 import styles from './ArticleParamsForm.module.scss';
 
 interface ArticleParamsFormProps {
-	isOpen?: boolean;
-	setAppState: (value: ArticleStateType) => void;
+	isMenuOpen?: boolean;
+	setArticleState: (value: ArticleStateType) => void;
 }
 
 export const ArticleParamsForm: React.FC<ArticleParamsFormProps> = ({
-	isOpen: isOpenProp = false,
-	setAppState,
+	isMenuOpen: isMenuOpenProp = false,
+	setArticleState,
 }) => {
-	const [isOpen, setIsOpen] = useState(isOpenProp);
+	const [isMenuOpen, setIsMenuOpen] = useState(isMenuOpenProp);
 	const sidebarRef = useRef<HTMLDivElement>(null);
 
 	const [formState, setFormState] =
 		useState<ArticleStateType>(defaultArticleState);
 
-	const handleToggle = () => setIsOpen((prev) => !prev);
+	const handleToggle = () => setIsMenuOpen((prev) => !prev);
 
 	const handleChange =
 		(fieldName: keyof ArticleStateType) => (value: OptionType) => {
@@ -49,22 +49,24 @@ export const ArticleParamsForm: React.FC<ArticleParamsFormProps> = ({
 
 	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		setAppState(formState);
+		setArticleState(formState);
 	};
 
 	const handleReset = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		setFormState(defaultArticleState);
-		setAppState(defaultArticleState);
+		setArticleState(defaultArticleState);
 	};
 
 	useEffect(() => {
+		if (!isMenuOpen) return;
+
 		const handleClickOutside = (event: MouseEvent) => {
 			if (
 				sidebarRef.current &&
 				!sidebarRef.current.contains(event.target as Node)
 			) {
-				setIsOpen(false);
+				setIsMenuOpen(false);
 			}
 		};
 
@@ -72,14 +74,16 @@ export const ArticleParamsForm: React.FC<ArticleParamsFormProps> = ({
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, [isOpen]);
+	}, [isMenuOpen]);
 
 	return (
 		<>
-			<ArrowButton isOpen={isOpen} onClick={handleToggle} />
+			<ArrowButton isMenuOpen={isMenuOpen} onClick={handleToggle} />
 			<aside
 				ref={sidebarRef}
-				className={clsx(styles.container, { [styles.container_open]: isOpen })}
+				className={clsx(styles.container, {
+					[styles.container_open]: isMenuOpen,
+				})}
 				onClick={(e) => e.stopPropagation()}>
 				<form
 					className={styles.form}
